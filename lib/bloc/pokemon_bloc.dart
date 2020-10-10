@@ -1,37 +1,47 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:getpokemon_fl/api/exceptions.dart';
+import 'package:getpokemon_fl/api/services.dart';
 import 'package:getpokemon_fl/model/pokemon_model.dart';
 import 'package:meta/meta.dart';
-
-import 'package:http/http.dart' as http;
 
 part 'pokemon_event.dart';
 part 'pokemon_state.dart';
 
 class PokemonBloc extends Bloc<PokemonEvent, PokemonState> {
-  PokemonBloc() : super(PokemonInitial());
+  final PokemonRepo pokemonRepo;
 
-  PokemonState get initialState => PokemonInitial();
+  PokemonBloc({this.pokemonRepo}) : super(PokemonInitial());
 
-  var pokemon = PokemonModel();
+  PokemonModel pokemon;
 
   @override
   Stream<PokemonState> mapEventToState(PokemonEvent event) async* {
     if (event is InitialPokemon) {
       yield PokemonInitial();
-      await _fetch(event.text);
-      yield PokemonLoaded(pokemon);
-    }
-  }
-
-  Future<PokemonModel> _fetch(String text) async {
-    final response = await http.get('https://pokeapi.co/api/v2/pokemon/$text');
-    if (response.statusCode == 200) {
-      return PokemonModel.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load album');
+      try {
+        pokemon = await pokemonRepo.getPokemon(event.text);
+        yield PokemonLoaded(pokemon: pokemon);
+      } on SocketException {
+        yield PokemonError(
+          error: NoInternetException('No Internet'),
+        );
+      } on HttpException {
+        yield PokemonError(
+          error: NoServiceFoundException('No Service Found'),
+        );
+      } on FormatException {
+        yield PokemonError(
+          error: InvalidFormatException('Invalid Response Format'),
+        );
+      } catch (e) {
+        yield PokemonError(
+          error: UnknownException('Unknown Error'),
+        );
+      }
     }
   }
 }

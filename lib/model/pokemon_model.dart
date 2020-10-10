@@ -1,149 +1,97 @@
-class Pokemon {
-  int count;
-  String next;
-  Null previous;
-  List<Results> results;
+import 'dart:convert';
 
-  Pokemon({this.count, this.next, this.previous, this.results});
+PokemonModel welcomeFromJson(String str) => PokemonModel.fromJson(json.decode(str));
 
-  Pokemon.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
-    next = json['next'];
-    previous = json['previous'];
-    if (json['results'] != null) {
-      results = new List<Results>();
-      json['results'].forEach((v) {
-        results.add(new Results.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['count'] = this.count;
-    data['next'] = this.next;
-    data['previous'] = this.previous;
-    if (this.results != null) {
-      data['results'] = this.results.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class Results {
-  String name;
-  String url;
-
-  Results({this.name, this.url});
-
-  Results.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    url = json['url'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['url'] = this.url;
-    return data;
-  }
-}
+String welcomeToJson(PokemonModel data) => json.encode(data.toJson());
 
 class PokemonModel {
-  int baseExperience;
-  int height;
-  int id;
-  String name;
-  int order;
-  Sprites sprites;
-  int weight;
+    PokemonModel({
+        this.baseExperience,
+        this.height,
+        this.id,
+        this.locationAreaEncounters,
+        this.name,
+        this.order,
+        this.sprites,
+        this.weight,
+    });
 
-  PokemonModel({
-                  this.baseExperience,
-                  this.height,
-                  this.id,
-                  this.name,
-                  this.order,
-                  this.sprites,
-                  this.weight});
+    int baseExperience;
+    int height;
+    int id;
+    String locationAreaEncounters;
+    String name;
+    int order;
+    Sprites sprites;
+    int weight;
 
-  PokemonModel.fromJson(Map<String, dynamic> json) {
-    baseExperience = json['base_experience'];
-    height = json['height'];
-    id = json['id'];
-    name = json['name'];
-    order = json['order'];
-    sprites = json['sprites'] != null ? new Sprites.fromJson(json['sprites']) : null;
-    weight = json['weight'];
-  }
+    factory PokemonModel.fromJson(Map<String, dynamic> json) => PokemonModel(
+        baseExperience: json["base_experience"],
+        height: json["height"],
+        id: json["id"],
+        locationAreaEncounters: json["location_area_encounters"],
+        name: json["name"],
+        order: json["order"],
+        sprites: Sprites.fromJson(json["sprites"]),
+        weight: json["weight"],
+    );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['base_experience'] = this.baseExperience;
-    data['height'] = this.height;
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['order'] = this.order;
-    if (this.sprites != null) {
-      data['sprites'] = this.sprites.toJson();
-    }
-    data['weight'] = this.weight;
-    return data;
-  }
+    Map<String, dynamic> toJson() => {
+        "base_experience": baseExperience,
+        "height": height,
+        "id": id,
+        "location_area_encounters": locationAreaEncounters,
+        "name": name,
+        "order": order,
+        "sprites": sprites.toJson(),
+        "weight": weight,
+    };
 }
 
 class Sprites {
-  Other other;
+    Sprites({
+        this.other,
+    });
 
-  Sprites({this.other});
+    Other other;
 
-  Sprites.fromJson(Map<String, dynamic> json) {
-    other = json['other'] != null ? new Other.fromJson(json['other']) : null;
-  }
+    factory Sprites.fromJson(Map<String, dynamic> json) => Sprites(
+        other: json["other"] == null ? null : Other.fromJson(json["other"]),
+    );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.other != null) {
-      data['other'] = this.other.toJson();
-    }
-    return data;
-  }
+    Map<String, dynamic> toJson() => {
+        "other": other == null ? null : other.toJson(),
+    };
 }
 
 class Other {
+    Other({
+        this.officialArtwork,
+    });
 
-  OfficialArtwork officialArtwork;
+    OfficialArtwork officialArtwork;
 
-  Other({this.officialArtwork});
+    factory Other.fromJson(Map<String, dynamic> json) => Other(
+        officialArtwork: OfficialArtwork.fromJson(json["official-artwork"]),
+    );
 
-  Other.fromJson(Map<String, dynamic> json) {
-    officialArtwork = json['official-artwork'] != null
-        ? new OfficialArtwork.fromJson(json['official-artwork'])
-        : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.officialArtwork != null) {
-      data['official-artwork'] = this.officialArtwork.toJson();
-    }
-    return data;
-  }
+    Map<String, dynamic> toJson() => {
+        "official-artwork": officialArtwork.toJson(),
+    };
 }
 
-
 class OfficialArtwork {
-  String frontDefault;
+    OfficialArtwork({
+        this.frontDefault,
+    });
 
-  OfficialArtwork({this.frontDefault});
+    String frontDefault;
 
-  OfficialArtwork.fromJson(Map<String, dynamic> json) {
-    frontDefault = json['front_default'];
-  }
+    factory OfficialArtwork.fromJson(Map<String, dynamic> json) => OfficialArtwork(
+        frontDefault: json["front_default"],
+    );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['front_default'] = this.frontDefault;
-    return data;
-  }
+    Map<String, dynamic> toJson() => {
+        "front_default": frontDefault,
+    };
 }
